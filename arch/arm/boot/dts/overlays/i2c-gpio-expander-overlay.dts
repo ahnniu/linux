@@ -1,0 +1,38 @@
+/dts-v1/;
+/plugin/;
+
+/ {
+	compatible = "raspberrypi,3-compute-module";
+
+	fragment@0 {
+		target = <&i2c_arm>;
+		__overlay__ {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			status = "okay";
+
+			fxl6408: fxl6408@44 {
+				compatible = "fcs,fxl6408";
+				reg = <0x44>;
+				gpio-controller;
+				#gpio-cells = <2>;
+				inital_io_dir = <0x10>;
+				inital_output = <0x00>;
+				status = "okay";
+			};
+		};
+	};
+
+	// dtoverlay=i2c-gpio-expander,addr=0x44,dir=0xff,out=0x05
+	__overrides__ {
+		addr = <&fxl6408>, "reg:0";
+		dir = <&fxl6408>, "inital_io_dir:0";
+		out = <&fxl6408>, "inital_output:0";
+	};
+
+	// Overlays loaded after this one can then refer to &fxl6408
+	// lte-rst-gpio = <&fxl6408 4 GPIO_ACTIVE_LOW>;
+	__exports__ {
+        	fxl6408;
+    };
+};

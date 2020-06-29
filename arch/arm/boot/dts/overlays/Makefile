@@ -68,6 +68,7 @@ dtbo-$(CONFIG_ARCH_BCM2835) += \
 	i-sabre-q2m.dtbo \
 	i2c-bcm2708.dtbo \
 	i2c-gpio.dtbo \
+	i2c-gpio-expander.dtbo \
 	i2c-mux.dtbo \
 	i2c-pwm-pca9685a.dtbo \
 	i2c-rtc.dtbo \

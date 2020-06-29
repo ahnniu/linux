@@ -1,0 +1,48 @@
+/dts-v1/;
+
+#include "bcm2710-rpi-cm3.dts"
+
+/ {
+	compatible = "raspberrypi,3-compute-module", "brcm,bcm2837";
+	model = "Raspberry Pi Compute Module 3";
+};
+
+&i2c_arm {
+	#address-cells = <1>;
+	#size-cells = <0>;
+	status = "okay";
+
+	fxl6408: fxl6408@44 {
+		compatible = "fcs,fxl6408";
+		reg = <0x44>;
+		gpio-controller;
+		#gpio-cells = <2>;
+		inital_io_dir = <0x10>;
+		inital_output = <0x00>;
+		status = "okay";
+	};
+};
+
+&sdhci {
+	status = "okay";
+	non-removable;
+};
+
+/ {
+	wlreg_on: wlreg_on {
+		compatible = "regulator-fixed";
+		regulator-name = "wlreg_on";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		regulator-boot-on;
+		enable-active-high;
+		gpio = <&fxl6408 1 GPIO_ACTIVE_HIGH>;
+	};
+
+	bcmdhd_wlan: bcmdhd_wlan {
+		compatible = "android,bcmdhd_wlan";
+		wlreg_on-supply = <&wlreg_on>;
+	};
+};
+
+

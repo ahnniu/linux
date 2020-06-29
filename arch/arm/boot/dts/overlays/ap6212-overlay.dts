@@ -1,0 +1,39 @@
+/*
+ * Device Tree overlay for MZ61581-PI-EXT 2014.12.28 by Tontec
+ *
+ */
+
+/dts-v1/;
+/plugin/;
+
+/ {
+	compatible = "brcm,bcm2835";
+
+	fragment@0 {
+		target = <&sdhci>;
+		__overlay__ {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			pinctrl-names = "default";
+			pinctrl-0 = <&emmc_gpio34>;
+			status = "okay";
+			bus-width = <4>;
+			non-removable;
+		};
+	};
+
+	fragment@1 {
+		target = <&uart0>;
+		__overlay__ {
+			pinctrl-names = "default";
+			pinctrl-0 = <&uart0_gpio32 &gpclk2_gpio43>;
+			status = "okay";
+
+			bt: bluetooth {
+				compatible = "brcm,bcm43438-bt";
+				max-speed = <2000000>;
+				shutdown-gpios = <&expgpio 0 GPIO_ACTIVE_HIGH>;
+			};
+		};
+	};
+};
