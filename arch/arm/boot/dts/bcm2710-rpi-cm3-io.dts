@@ -4,10 +4,18 @@
 
 / {
 	compatible = "raspberrypi,3-compute-module", "brcm,bcm2837";
-	model = "Raspberry Pi Compute Module 3";
+	model = "Raspberry Pi Compute Module 3+ IO";
 };
 
-&i2c_arm {
+&gpio {
+	sdio_pins: sdio_pins {
+		brcm,pins =     <34 35 36 37 38 39>;
+		brcm,function = <7>; // alt3 = SD1
+		brcm,pull =     <0 2 2 2 2 2>;
+	};
+};
+
+&i2c1 {
 	#address-cells = <1>;
 	#size-cells = <0>;
 	status = "okay";
@@ -17,32 +25,25 @@
 		reg = <0x44>;
 		gpio-controller;
 		#gpio-cells = <2>;
-		inital_io_dir = <0x10>;
+		inital_io_dir = <0x00>;
 		inital_output = <0x00>;
 		status = "okay";
 	};
 };
 
+/* SDHCI is used to control the SDIO for wireless */
 &sdhci {
+	#address-cells = <1>;
+	#size-cells = <0>;
+	pinctrl-names = "default";
+	pinctrl-0 = <&sdio_pins>;
 	status = "okay";
-	non-removable;
-};
-
-/ {
-	wlreg_on: wlreg_on {
-		compatible = "regulator-fixed";
-		regulator-name = "wlreg_on";
-		regulator-min-microvolt = <3300000>;
-		regulator-max-microvolt = <3300000>;
-		regulator-boot-on;
-		enable-active-high;
-		gpio = <&fxl6408 1 GPIO_ACTIVE_HIGH>;
-	};
-
-	bcmdhd_wlan: bcmdhd_wlan {
-		compatible = "android,bcmdhd_wlan";
-		wlreg_on-supply = <&wlreg_on>;
+	bus-width = <4>;
+	brcm,overclock-50 = <0>;
+	max-frequency = <1000000>;
+	brcmf: wifi@1 {
+		reg = <1>;
+		compatible = "brcm,bcm4329-fmac";
 	};
 };
-
 

@@ -28,9 +28,11 @@
 #include <linux/slab.h>
 #include <linux/of_platform.h>
 
+#define DRIVER_NAME "fxl6408"
+
 #define FXL6408_DEVICE_ID		0x01
-#define FXL6408_RST_INT			BIT(1)
-#define FXL6408_SW_RST			BIT(0)
+# define FXL6408_RST_INT		BIT(1)
+# define FXL6408_SW_RST			BIT(0)
 
 /* Bits set here indicate that the GPIO is an output. */
 #define FXL6408_IO_DIR			0x03
@@ -78,6 +80,7 @@ static int fxl6408_gpio_direction_input(struct gpio_chip *gc, unsigned off)
 	chip->reg_io_dir &= ~BIT(off);
 	i2c_smbus_write_byte_data(chip->client, FXL6408_IO_DIR,
 				  chip->reg_io_dir);
+	pr_info(DRIVER_NAME ": gpio_direction_input, FXL6408_IO_DIR = 0x%02x\n", chip->reg_io_dir);
 	mutex_unlock(&chip->i2c_lock);
 
 	return 0;
@@ -92,6 +95,7 @@ static int fxl6408_gpio_direction_output(struct gpio_chip *gc,
 	chip->reg_io_dir |= BIT(off);
 	i2c_smbus_write_byte_data(chip->client, FXL6408_IO_DIR,
 				  chip->reg_io_dir);
+	pr_info(DRIVER_NAME ": gpio_direction_output, FXL6408_IO_DIR = 0x%02x\n", chip->reg_io_dir);
 	mutex_unlock(&chip->i2c_lock);
 
 	return 0;
@@ -115,6 +119,7 @@ static int fxl6408_gpio_get_value(struct gpio_chip *gc, unsigned off)
 	} else {
 		mutex_lock(&chip->i2c_lock);
 		reg = i2c_smbus_read_byte_data(chip->client, FXL6408_INPUT_STATUS);
+		pr_info(DRIVER_NAME ": gpio_get_value, FXL6408_INPUT_STATUS = 0x%02x\n", reg);
 		mutex_unlock(&chip->i2c_lock);
 	}
 	return (reg & BIT(off)) != 0;
@@ -133,6 +138,7 @@ static void fxl6408_gpio_set_value(struct gpio_chip *gc, unsigned off, int val)
 
 	i2c_smbus_write_byte_data(chip->client, FXL6408_OUTPUT,
 				  chip->reg_output);
+	pr_info(DRIVER_NAME ": gpio_set_value, FXL6408_OUTPUT = 0x%02x\n", chip->reg_output);
 	mutex_unlock(&chip->i2c_lock);
 }
 
@@ -191,12 +197,14 @@ static int fxl6408_probe(struct i2c_client *client,
 	} else {
 		chip->reg_io_dir = val & 0xff;
 		i2c_smbus_write_byte_data(client, FXL6408_IO_DIR, chip->reg_io_dir);
+		pr_info(DRIVER_NAME ": set inital_io_dir 0x%2.2x\n", chip->reg_io_dir);
 	}
 	if (of_property_read_u32(dev->of_node, "inital_output", &val)) {
 		chip->reg_output = i2c_smbus_read_byte_data(client, FXL6408_OUTPUT);
 	} else {
 		chip->reg_output = val & 0xff;
 		i2c_smbus_write_byte_data(client, FXL6408_OUTPUT, chip->reg_output);
+		pr_info(DRIVER_NAME ": set inital_output 0x%2.2x\n", chip->reg_output);
 	}
 
 	gc = &chip->gpio_chip;
@@ -255,6 +263,22 @@ static struct i2c_driver fxl6408_driver = {
 };
 
 module_i2c_driver(fxl6408_driver);
+
+// static int __init fxl6408_init(void)
+// {
+// 	pr_info(DRIVER_NAME ": i2c gpio expander driver\n");
+// 	return i2c_add_driver(&fxl6408_driver);
+// }
+// /* register after i2c postcore initcall and before
+//  * subsys initcalls that may rely on these GPIOs
+//  */
+// subsys_initcall(fxl6408_init);
+
+// static void __exit fxl6408_exit(void)
+// {
+// 	i2c_del_driver(&fxl6408_driver);
+// }
+// module_exit(fxl6408_exit);
 
 MODULE_AUTHOR("Eric Anholt <eric@anholt.net>");
 MODULE_DESCRIPTION("GPIO expander driver for FXL6408");
