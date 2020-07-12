@@ -5,13 +5,38 @@
 / {
 	compatible = "raspberrypi,3-compute-module", "brcm,bcm2837";
 	model = "Raspberry Pi Compute Module 3+ IO";
+
+	aliases {
+		serial0 = &uart1;
+		serial1 = &uart0;
+		mmc1 = &sdhci;
+	};
 };
+
 
 &gpio {
 	sdio_pins: sdio_pins {
 		brcm,pins =     <34 35 36 37 38 39>;
 		brcm,function = <7>; // alt3 = SD1
 		brcm,pull =     <0 2 2 2 2 2>;
+	};
+
+	bt_pins: bt_pins {
+		brcm,pins = <43>;
+		brcm,function = <4>; /* alt0:GPCLK2 */
+		brcm,pull = <0>;
+	};
+
+	uart0_pins: uart0_pins {
+		brcm,pins = <32 33>;
+		brcm,function = <7>; /* alt3=UART0 */
+		brcm,pull = <0 2>;
+	};
+
+	uart1_pins: uart1_pins {
+		brcm,pins;
+		brcm,function;
+		brcm,pull;
 	};
 };
 
@@ -27,6 +52,12 @@
 		#gpio-cells = <2>;
 		inital_io_dir = <0x00>;
 		inital_output = <0x00>;
+		status = "okay";
+	};
+
+	pcf8563: pcf8563@51 {
+		compatible = "nxp,pcf8563";
+		reg = <0x51>;
 		status = "okay";
 	};
 };
@@ -47,3 +78,15 @@
 	};
 };
 
+
+&uart0 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&uart0_pins &bt_pins>;
+	status = "okay";
+};
+
+&uart1 {
+	pinctrl-names = "default";
+	pinctrl-0 = <&uart1_pins>;
+	status = "okay";
+};
