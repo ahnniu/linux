@@ -613,4 +613,13 @@ config USB_NET_CH9200
 	  To compile this driver as a module, choose M here: the
 	  module will be called ch9200.
 
+config USB_NET_BROADMOBI_GOBINET
+	tristate "WWAN driver for BroadMobi BM817C LTE modems"
+	depends on USB_USBNET
+	help
+	  Choose this option if you have a BroadMobi BM817C modules.
+
+	  To compile this driver as a module, choose M here: the
+	  module will be called gobinet.
+
 endif # USB_NET_DRIVERS

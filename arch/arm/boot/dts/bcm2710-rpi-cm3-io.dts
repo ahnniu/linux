@@ -65,11 +65,25 @@
 		status = "okay";
 	};
 
+	tmp75: tmp75@48 {
+		compatible = "ti,tmp75";
+		reg = <0x48>;
+		status = "okay";
+	};
+
+	at24c02: at24c02@50 {
+		compatible = "atmel,24c02";
+		reg = <0x50>;
+		status = "okay";
+	};
+
 	pcf8563: pcf8563@51 {
 		compatible = "nxp,pcf8563";
 		reg = <0x51>;
 		status = "okay";
 	};
+
+
 };
 
 /* SDHCI is used to control the SDIO for wireless */

@@ -573,6 +573,7 @@ static void option_instat_callback(struct urb *urb);
 
 
 static const struct usb_device_id option_ids[] = {
+	{ USB_DEVICE(0x2020, 0x2040) },		/* BroadMobi BM817 */
 	{ USB_DEVICE(OPTION_VENDOR_ID, OPTION_PRODUCT_COLT) },
 	{ USB_DEVICE(OPTION_VENDOR_ID, OPTION_PRODUCT_RICOLA) },
 	{ USB_DEVICE(OPTION_VENDOR_ID, OPTION_PRODUCT_RICOLA_LIGHT) },
@@ -2091,6 +2092,14 @@ static int option_probe(struct usb_serial *serial,
 	 * can change (e.g. Quectel EP06).
 	 */
 	if (device_flags & NUMEP2 && iface_desc->bNumEndpoints != 2)
+		return -ENODEV;
+
+	/*
+	 * BroadMobi BM817 can be used as USB Network device
+	 * Added By Paul Niu
+	 */
+	if (serial->dev->descriptor.idVendor == cpu_to_le16(0x2020) && serial->dev->descriptor.idProduct == cpu_to_le16(0x2040)
+		&& serial->interface->cur_altsetting->desc.bInterfaceNumber >= 4)
 		return -ENODEV;
 
 	/* Store the device flags so we can use them during attach. */
